@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.book.sns.dao.AlarmMapper">
+   <select id="selectListAlarm" parameterType="String" resultType="alarm">
+      select 
+         a.noticeNum noticeNum, 
+         a.noticeType noticeType , 
+         a.ownerId ownerId , 
+         a.loginId loginId ,
+         a.fkNum fkNum, 
+         a.regDate regDate, 
+         a.noticeDate noticeDate, 
+         a.AlarmCheck AlarmCheck, 
+         s.saveFile profilePic
+      from alarm a, snsuser s
+      where 
+         a.loginId= s.userid
+         and 
+         a.ownerId=#{value}
+         and noticeType != 'book'
+      order by regDate desc
+   </select>
+   
+   <select id="overNoticeDate" resultType="alarm">
+   select * from alarm where noticeType ='book' and sysdate > noticeDate
+   
+   </select>
+   
+      <insert id="insertFavoriteAlarm" parameterType="alarm">
+   INSERT INTO alarm
+   (noticeNum, noticeType, ownerId,loginId,fkNum,regdate)
+   VALUES
+   (alarm_seq.NextVal,
+   #{noticeType},
+   #{ownerId},
+   #{loginId},
+   #{fkNum},
+   SYSDATE
+   )
+   </insert>
+   <select id="countFavoriteAlarm" resultType="int" parameterType="snsUser">
+   select
+   count(*)
+   from
+      alarm
+   where
+      alarmCheck = 'N' AND ownerId = #{userId}
+   
+   </select>
+  
+   <select id="selectFollowingId" parameterType="snsUser" resultType="relationship">
+   SELECT
+      LOGINID
+   FROM
+      RELATIONSHIP
+   WHERE
+      followId=#{userId}
+   </select>
+   
+   <update id="updateReading" parameterType="String" >
+   update alarm set alarmCheck='Y' where ownerId=#{value}
+   
+   </update>
+   
+   <insert id="insertBookAlarm" parameterType="alarm">
+   INSERT INTO alarm
+   (noticeNum, noticeType, ownerId,loginId,fkNum,regdate,noticeDate,alarmCheck)
+   VALUES
+   (alarm_seq.NextVal,
+   #{noticeType},
+   #{ownerId},
+   #{loginId},
+   #{fkNum},
+   SYSDATE,
+   sysdate+100,
+   #{alarmCheck}
+   )
+   </insert>
+
+	<!--새로생성된방에서 읽은사람과 안읽은사람  -->
+	<insert id="insertDmAlarm" parameterType="dmAlarm">
+	INSERT INTO dm_Alarm
+	  	(DMNUM,
+		USERID,
+		ALARMCHECK)
+    VALUES
+	    (
+	   		#{dmNum},
+	   		#{userId},
+	   		#{alarmCheck}
+	    )
+	</insert>
+	
+	
+	<!-- 알람 읽었음,채팅방에 존재함 -->
+	<update id="updateDmAlarm" parameterType="dmAlarm">
+	UPDATE
+	DM_ALARM
+	SET
+		ALARMCHECK=#{alarmCheck}
+	WHERE
+		DMNUM=#{dmNum}
+	AND
+		USERID=#{userId}
+	</update>
+	
+	
+	<select id="checkDmAlarm" parameterType="String" resultType="int">
+	SELECT
+		COUNT(*)
+	FROM
+		DM_ALARM
+	WHERE
+		USERID=#{userId}
+	AND
+		ALARMCHECK=0
+	</select>
+
+</mapper>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.book.sns.dao.SearchMapper">
+	<select id="searchBook" parameterType="HashMap" resultType="book">
+		select 
+			bookNum, 
+			isbn, 
+			authors, 
+			title, 
+			publisher, 
+			contents,
+			userId, 
+			categories, 
+			memo,
+			price,
+			thumbnail,
+			readyn
+		from
+			book
+		where
+			(authors like '%' || #{keyword} || '%'
+			or
+			title like '%' || #{keyword} || '%'
+			or
+			publisher like '%' || #{keyword} || '%'
+			or
+			contents like '%' || #{keyword} || '%'
+			or
+			categories like '%' || #{keyword} || '%'
+			or
+			categories like '%' || #{keyword} || '%')
+			and
+			userId = #{userId}
+	</select>
+	
+	<select id="searchUser" parameterType="String" resultType="snsUser">
+		select 
+			userNum,
+			userId,
+			email,
+			userPwd,
+			savefile,
+			introduce
+		from
+			snsuser
+		where 
+			userId like '%' || #{value} || '%'
+	</select>
+	
+	<!--  태그 검색/피드검색으로 결과 가져오기 -->
+	<select id="selectSearchFeedOrTag" parameterType="HashMap" resultType="feed">
+		select 
+			distinct f.feednum,
+			f.content,
+			f.userid,
+			f.targetid,
+			f.targetfeednum,
+			f.originalfeednum,
+			f.regdate,
+			f.tag,
+			f.likecount,
+			f.spreadcount,
+			f.depth,
+			f.photoyn,
+			u.savefile
+		from 
+			feed f join snsuser u
+		on 
+			f.userid = u.userid
+		<choose>
+			<when test="category != null and category == 'feed'">
+			where 
+				f.userid like '%' || #{keyword} || '%'
+				or
+				f.targetid like '%' || #{keyword} || '%'
+				or
+				f.content like '%' || #{keyword} || '%'
+			</when>
+			<when test="category != null and category == 'tag'">
+			where
+				f.tag like '%' || #{keyword} || '%'
+			</when>
+		</choose>
+		order by regDate desc
+	</select>
+</mapper>

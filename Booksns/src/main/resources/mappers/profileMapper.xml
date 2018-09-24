@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.book.sns.dao.ProfileMapper">
+
+
+	<!-- 프로필 -->
+	<select id="selectProfile" parameterType="String" resultType="snsUser">
+	
+		select usernum, userid, email, userpwd, originfile, savefile, introduce
+		  from snsuser
+		 where userid = #{userId} 
+	
+	</select>
+
+	<!-- 개인통계 -->
+	<select id="selectStatistics" parameterType="String" resultType="personal">
+
+	select DISTINCT categories, count(CATEGORIES) as cnt
+	from book
+	where userid = #{userId}
+	group by categories
+	order by cnt desc
+	
+	</select>
+	
+	<!-- 프로필에서 피드 가져오기 -->
+	<select id="selectAllFeed" parameterType="String" resultType="feed">
+
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where f.userid in (select followid from RELATIONSHIP where loginid = #{userId})
+	or f.userid = #{userId}
+	or f.targetid like  '%' || #{userId} || '%' 
+	order by regDate desc
+	
+	</select>
+	
+	
+	<!-- 타래가져오기 -->
+	<select id="selectMention" parameterType="feed" resultType="feed">	
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where f.originalfeednum = #{originalFeedNum}
+	order by depth
+	</select>
+	
+	
+	<!-- 사진 가져오기 -->
+	<select id="selectPhoto" parameterType="Integer" resultType="photo">
+
+	select pnum, photo.feednum, saveimg, originimg
+	from photo, feed
+	where FEED.PHOTOYN = 'Y'
+	and photo.FEEDNUM = feed.FEEDNUM
+	and photo.FEEDNUM = #{feedNum}
+	
+	</select>
+	
+	
+	
+	<!-- depth가 1인 멘션 가져오기 -->
+	<select id="selectDepthOne" parameterType="Integer" resultType="feed">
+
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where f.originalfeednum = #{originalFeedNum}
+	and depth in (1,0)
+	order by regDate
+	
+	</select>
+	
+	
+	<!-- 멘션이 없는 피드 가져오기 -->
+	<select id="selectNoMentionFeed" parameterType="integer" resultType="feed">
+
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where feednum = #{feedNum}
+	
+	</select>
+	
+	<!-- following -->
+	<select id="followingList" parameterType="String" resultType="relationship">
+		
+		select loginId, followId
+		  from relationship
+		 where loginId = #{userId} 		
+	
+	</select>
+	
+	<select id="followerList" parameterType="String" resultType="relationship">
+		
+		select loginId, followId
+		  from relationship
+		 where followid = #{userId} 		
+	
+	</select>
+	
+	<!-- insert relationsip -->
+	<insert id="follow" parameterType="relationship">
+	
+		insert into relationship (rnum, loginid, followid)
+						values (rel_seq.nextval, #{loginId}, #{followId})
+	
+	</insert>
+	
+	<select id="followercnt" parameterType="String" resultType="Integer">
+	
+		select count(*)
+		  from relationship
+		 where followId = #{userId} 
+	
+	</select>
+	
+	<select id="followingcnt" parameterType="String" resultType="Integer">
+	
+		select count(*)
+		  from relationship
+		 where loginId = #{userId} 
+	
+	</select>
+	
+
+</mapper>

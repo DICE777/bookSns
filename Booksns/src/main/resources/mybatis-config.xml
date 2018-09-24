@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+
+<configuration>
+	<!-- 널 값을 허용하는 아시키 -->
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL" />
+	</settings>
+
+	<typeAliases>
+
+		<typeAlias type="com.book.sns.dto.SnsUser" alias="snsUser"/>
+		<typeAlias type="com.book.sns.dto.Book" alias="book"/>
+		<typeAlias type="com.book.sns.dto.PersonalStatistics" alias="personal"/>
+		<typeAlias type="com.book.sns.dto.Feed" alias="feed"/>
+		<typeAlias type="com.book.sns.dto.Photo" alias="photo"/>
+		<typeAlias type="com.book.sns.dto.DmList" alias="dmList"/>
+		<typeAlias type="com.book.sns.dto.DmContent" alias="dmContent"/>
+		<typeAlias type="com.book.sns.dto.DmContentList" alias="dmContentList"/>
+		<typeAlias type="com.book.sns.dto.Relationship" alias="relationship"/>
+		<typeAlias type="com.book.sns.dto.Favorite" alias="favorite"/>
+		<typeAlias type="com.book.sns.dto.Alarm" alias="alarm"/>
+		<typeAlias type="com.book.sns.dto.FollowingList" alias="followingList"/>
+		<typeAlias type="com.book.sns.dto.DmAlarm" alias="dmAlarm"/>
+		
+	</typeAliases>
+
+	<mappers>
+		<mapper resource="./mappers/bookMapper.xml"/>
+		<mapper resource="./mappers/userMapper.xml"/>
+		<mapper resource="./mappers/profileMapper.xml"/>
+		<mapper resource="./mappers/snsDmMapper.xml"/>
+		<mapper resource="./mappers/userUpdateMapper.xml"/>
+		<mapper resource="./mappers/feedMapper.xml"/>
+		<mapper resource="./mappers/favoriteMapper.xml"/>
+		<mapper resource="./mappers/storageMapper.xml"/>
+		<mapper resource="./mappers/searchMapper.xml"/>
+		<mapper resource="./mappers/alarmMapper.xml"/>
+	</mappers>
+</configuration>

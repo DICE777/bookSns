@@ -1,0 +1,81 @@
+@charset "UTF-8";
+
+.profile {
+    width: 30px; 
+    height: 30px;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 50%;
+ }
+
+a {
+
+	text-decoration: none;
+	color: black;
+
+}
+
+body{
+  margin:0;
+  padding:0;
+}
+
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  background-color: #754f44;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+}
+
+.sidenav .menu {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #e5dedc;
+    display: block;
+    transition: 0.3s;
+}
+
+.slideBtn {
+  transition: .5s;
+  position: fixed;
+  right: 0;  
+  font-size:30px;
+  cursor:pointer;
+  margin-right:10px;
+}
+
+#main {
+  transition: .5s;  
+  background-color:white;
+}
+
+section{
+  padding:20px;
+}
+section+section{
+  padding-top:0;
+}
+
+article{  
+  border-top:1px solid green;
+  background-color:gray;
+}
+
+ .notification-counter {   
+    position: absolute;
+    top: 10px ;
+    left: 35px;
+    
+    background-color: rgba(212, 19, 13, 1);
+    color: #fff;
+    border-radius: 3px;
+    padding: 1px 3px;
+    font: 12px Verdana;
+}

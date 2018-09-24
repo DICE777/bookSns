@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.book.sns.dao.FavoriteMapper">
+<insert id="insertFavorite" parameterType="favorite">
+INSERT INTO favorite
+(
+	favNum,
+ 	feedNum,
+ 	id
+)
+VALUES
+(
+	fav_seq.NEXTVAL,
+	#{feedNum},
+	#{id}
+)
+</insert>
+<select id="selectFavorite" resultType="int" parameterType="favorite">
+SELECT 
+	count(*)
+FROM
+	favorite
+WHERE
+	id=#{id} AND feedNum=#{feedNum}
+</select>
+
+
+<update id="updateFavorite" parameterType="Map">
+UPDATE feed
+SET
+	likecount=likecount+#{add}
+WHERE 
+	feedNum=#{feedNum}
+</update>
+<delete id="deleteFavorite" parameterType="favorite">
+DELETE FROM favorite
+WHERE id=#{id} AND feedNum=#{feedNum}
+</delete>
+</mapper>

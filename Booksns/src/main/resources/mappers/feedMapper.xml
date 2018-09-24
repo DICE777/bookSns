@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.book.sns.dao.kshFeedMapper">
+	<select id="selectNextVal" resultType="int">
+	select feed_seq.nextVal from dual
+	</select>
+	
+	<insert id="insertFeed" parameterType="feed">
+	insert into feed(feedNum,content ,userid,targetId ,originalFeedNum,tag ,photoYN ) 
+	values(
+	#{feedNum},
+	#{content},
+	#{userId},
+	#{targetId},
+	#{originalFeedNum},
+	#{tag},
+	#{photoYN}
+	)
+	</insert>
+	
+	<insert id="insertPhoto" parameterType="photo">
+	insert into photo(pNum , feedNum , saveImg , originImg)
+	values(
+	photo_seq.nextVal,
+	#{feedNum},
+	#{saveImg},
+	#{originImg}
+	)
+	</insert>
+	
+
+	
+	<!-- 프로필에서 피드 가져오기 -->
+	<select id="selectAllFeed" parameterType="String" resultType="feed">
+
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where f.userid in (select followid from RELATIONSHIP where loginid = #{userId})
+	or f.userid = #{userId}
+	or f.targetid like  '%' || #{userId} || '%' 
+	order by regDate desc
+	
+	</select>
+	
+	
+	<!-- 타래가져오기 -->
+	<select id="selectMention" parameterType="feed" resultType="feed">	
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where f.originalfeednum = #{originalFeedNum}
+	order by depth
+	</select>
+	
+	
+	<!-- 사진 가져오기 -->
+	<select id="selectPhoto" parameterType="Integer" resultType="photo">
+
+	select pnum, photo.feednum, saveimg, originimg
+	from photo, feed
+	where FEED.PHOTOYN = 'Y'
+	and photo.FEEDNUM = feed.FEEDNUM
+	and photo.FEEDNUM = #{feedNum}
+	
+	</select>
+	
+	
+	
+	<!-- depth가 1인 멘션 가져오기 -->
+	<select id="selectDepthOne" parameterType="Integer" resultType="feed">
+
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where f.originalfeednum = #{originalFeedNum}
+	and depth in (1,0)
+	order by regDate
+	
+	</select>
+	
+	
+	<!-- 멘션이 없는 피드 가져오기 -->
+	<select id="selectNoMentionFeed" parameterType="integer" resultType="feed">
+
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where feednum = #{feedNum}
+	
+	</select>
+	
+	<!-- 유저정보 -->
+	<select id="selectProfile" parameterType="String" resultType="snsUser">
+	
+		select usernum, userid, email, userpwd, originfile, savefile, introduce
+		  from snsuser
+		 where userid = #{userId} 
+	
+	</select>
+	
+	<!-- following -->
+	<select id="following" parameterType="String" resultType="relationship">
+		
+		select loginId, followId
+		  from relationship
+		 where loginId = #{userId} 		
+	
+	</select>
+	
+	<!-- insert relationsip -->
+	<insert id="follow" parameterType="relationship">
+	
+		insert into relationship (rnum, loginid, followid)
+						values (rel_seq.nextval, #{loginId}, #{followId})
+	
+	</insert>
+	
+	<!-- delete relationship -->
+	<delete id="unfollow" parameterType="relationship">
+	
+		delete from relationship where loginId = #{loginId} and followid = #{followId}
+	
+	</delete>
+	
+	<!-- select feed -->
+	<select id="selectOneFeed" parameterType="int" resultType="feed">
+   select * from feed where feedNum=#{value}
+   
+   </select>
+   
+   
+   <insert id="insertMention" parameterType="feed">
+   insert into feed(feedNum,content ,userid,targetId ,originalFeedNum,tag ,depth,photoYN ) 
+   values(
+   #{feedNum},
+   #{content},
+   #{userId},
+   #{targetId},
+   #{originalFeedNum},
+   #{tag},
+   #{depth},
+   #{photoYN}
+   )
+   </insert>
+   
+   <insert id="insertFollowAlarm" parameterType="alarm">
+   
+   		insert into alarm(noticenum, noticetype, ownerid, loginid, regdate, alarmcheck)
+   				    values(alarm_seq.nextval,
+   				    	   #{noticeType},
+   				    	   #{ownerId},
+   				    	   #{loginId},
+   				    	   sysdate,
+   				    	   'N')
+   
+   </insert>
+   
+   <insert id="insertUnfollowAlarm" parameterType="alarm">
+   
+   		insert into alarm(noticenum, noticetype, ownerid, loginid, regdate, alarmcheck)
+   				    values(alarm_seq.nextval,
+   				    	   #{noticeType},
+   				    	   #{ownerId},
+   				    	   #{loginId},
+   				    	   sysdate,
+   				    	   'N')
+   
+   </insert>
+   
+   <insert id="insertAlarm" parameterType="alarm" >
+   insert into alarm values(
+   alarm_seq.nextVal,
+   #{noticeType},
+   #{ownerId},
+   #{loginId},
+   #{fkNum},
+   sysdate,
+   sysdate,
+   #{alarmCheck}
+   )
+   </insert>
+   
+     <select id="getTotal" parameterType="String"  resultType="int">
+      select count(*)
+   from feed f join snsuser u on f.userid = u.userid
+   where f.userid in (select followid from RELATIONSHIP where loginid = #{userId})
+   or f.userid = #{userId}
+   or f.targetid like  '%' || #{userId} || '%' 
+   order by regDate desc
+   </select>  
+    
+</mapper>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.book.sns.dao.BookMapper">
+
+	<insert id="insertBook" parameterType="book">
+	
+		insert into Book(bookNum, 
+						 isbn, 
+						 authors, 
+						 title, 
+						 publisher, 
+						 contents,
+						 userId, 
+						 categories, 
+						 memo,
+						 price,
+						 thumbnail,
+						 readyn)
+				  	values(#{bookNum},
+				  		   #{isbn},
+				  		   #{authors},
+				  		   #{title},
+				  		   #{publisher},
+				  		   #{contents},
+				  		   #{userId},
+				  		   #{categories},
+				  		   #{memo},
+				  		   #{price},
+				  		   #{thumbnail},
+				  		   #{readYN})
+
+	</insert>
+
+<select id="dbBookFind" parameterType="book" resultType="book">
+	
+	select *
+	  from book
+	 where isbn = #{isbn}
+	   and title = #{title}
+	   and authors = #{authors} 
+	   and userId = #{userId}
+
+</select>
+
+<!-- 서재 책 커버 가져옴 -->
+   <select id="selectBookCover" parameterType="book" resultType="book">
+   SELECT
+   	  BOOKNUM,
+      ISBN,
+      TITLE,
+      THUMBNAIL,
+      USERID,
+      READYN
+   FROM
+      BOOK
+   WHERE
+      USERID=#{userId}
+   </select>
+   
+   <!--읽은 책 표시 O/X  -->
+   <update id="bookUpdate" parameterType="book">
+   UPDATE
+      BOOK
+   SET
+      READYN=#{readYN},
+      memo = #{memo}
+   WHERE
+      booknum = #{bookNum}
+   </update>
+
+<select id="getBooksCount" parameterType="String" resultType="Integer">
+		select count(*) from book
+		where userId = #{value}
+</select>
+
+<select id="selectOneBook" parameterType="String" resultType="book">
+
+	select *
+	  from book
+	 where booknum = #{bookNum} 
+
+</select>
+
+<delete id="deleteBook" parameterType="String">
+
+	delete from book where booknum = #{bookNum}
+
+</delete>
+
+ <!--페이징처리  -->
+   <select id="getTotal" resultType="int">
+   SELECT 
+      count(*)
+   FROM
+      BOOK
+   </select>
+
+
+</mapper>

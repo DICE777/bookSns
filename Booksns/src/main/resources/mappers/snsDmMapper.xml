@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.book.sns.dao.SnsDmMapper">
+   <!--followingList가져오기  -->
+	<select id="selectFollowingId" parameterType="followingList" resultType="followingList">
+	   SELECT
+	      r.FOLLOWID,
+	      s.SAVEFILE
+	   FROM
+	      RELATIONSHIP r, SNSUSER s
+	   WHERE
+	  	 r.loginId=#{userId}
+	   AND
+	    r.followid=s.userid
+	</select>
+		
+	
+   <!--이미 있는 채팅방인지 확인 -->
+   <select id="dmCheck" parameterType="dmList" resultType="dmList">
+   SELECT
+    dmNum
+   FROM
+      DM_LIST
+   WHERE
+      (fromId=#{fromId} AND toId=#{toId}) OR (toId=#{fromId} AND fromId=#{toId})
+   </select>
+   
+   
+
+   <!-- DM방 생성  -->
+   <insert id="dmRoomCreate" parameterType="dmList">
+	<selectKey keyProperty="dmNum" resultType="int" order="AFTER"> 
+	SELECT dmNum_seq.CURRVAL FROM DUAL 
+	</selectKey>
+	
+   INSERT INTO DM_LIST
+   (
+      DMNUM,
+      FROMID,
+      TOID
+   )
+   VALUES
+   (
+      dmNum_seq.nextVal, 
+      #{fromId},
+      #{toId}
+   )
+   
+   </insert>
+   
+   <!--DM보내기  -->
+   <insert id="dmSubmit" parameterType="dmContent">
+   INSERT INTO DM_CONTENT
+   (
+      dmContentId,
+       dmNum,
+       dmUserId,
+       dmContent,
+       dmRegdate
+   )
+   VALUES
+   (
+      dmContentId_seq.nextVal,
+      #{dmNum},
+      #{dmUserId},
+      #{dmContent},
+      SYSDATE
+   )
+   </insert>
+   
+   <!--DM내용가져오기  -->
+   <select id="selectDm" parameterType="map" resultType="dmContent">
+   SELECT
+   *
+   FROM
+      DM_CONTENT
+   WHERE
+      (DMUSERID=#{followId} OR DMUSERID=#{dmUserId}) AND (DMUSERID=#{dmUserId} OR DMUSERID=#{followId}) 
+   AND
+      DMNUM = #{dmNum}
+   ORDER BY
+       DMREGDATE ASC
+   </select>
+   
+   <!--DM방 가져오기 (최근 내용 1줄) -->
+   <select id="getDmRecentById" parameterType="String" resultType="dmContentList">
+   select 
+   		a.dmnum,
+   		a.fromid,
+   		a.toid,
+		b.dmcontent,
+		b.dmregdate,
+		(SELECT ALARMCHECK FROM DM_ALARM WHERE USERID=#{userId} AND DMNUM=a.dmnum) alarmCheck
+    from
+     dm_list a,
+     (select * from dm_content a,
+                           (select max(dmcontentid) dmcontentid from dm_content GROUP BY dmnum) b
+                                where a.dmcontentid=b.dmcontentid) b
+	where
+		 a.dmnum=b.dmnum 
+	AND 
+		(a.fromid=#{userId} OR a.toid=#{userId}) 
+   </select>
+   
+</mapper>

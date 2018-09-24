@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.book.sns.dao.StorageMapper">
+
+	
+	<!-- 프로필에서 피드 가져오기 -->
+	<select id="selectFeed" parameterType="String" resultType="feed">
+
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where f.feedNum in (select feedNum from favorite where Id = #{Id})
+	order by regDate desc
+	
+	</select>
+	
+	
+	<!-- 타래가져오기 -->
+	<select id="selectMention" parameterType="feed" resultType="feed">	
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where f.originalfeednum = #{originalFeedNum}
+	order by depth
+	</select>
+	
+	
+	<!-- 사진 가져오기 -->
+	<select id="selectPhoto" parameterType="Integer" resultType="photo">
+
+	select pnum, photo.feednum, saveimg, originimg
+	from photo, feed
+	where FEED.PHOTOYN = 'Y'
+	and photo.FEEDNUM = feed.FEEDNUM
+	and photo.FEEDNUM = #{feedNum}
+	
+	</select>
+	
+	
+	
+	<!-- depth가 1인 멘션 가져오기 -->
+	<select id="selectDepthOne" parameterType="Integer" resultType="feed">
+
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where f.originalfeednum = #{originalFeedNum}
+	and depth in (1,0)
+	order by regDate
+	
+	</select>
+	
+	
+	<!-- 멘션이 없는 피드 가져오기 -->
+	<select id="selectNoMentionFeed" parameterType="integer" resultType="feed">
+
+	select distinct f.feednum,
+		   f.content,
+		   f.userid,
+		   f.targetid,
+		   f.targetfeednum,
+		   f.originalfeednum,
+		   f.regdate,
+		   f.tag,
+		   f.likecount,
+		   f.spreadcount,
+		   f.depth,
+		   f.photoyn,
+		   u.savefile
+	from feed f join snsuser u on f.userid = u.userid
+	where feednum = #{feedNum}
+	
+	</select>
+	
+	<!-- following -->
+	<select id="following" parameterType="String" resultType="relationship">
+		
+		select loginId, followId
+		  from relationship
+		 where loginId = #{userId} 		
+	
+	</select>
+	
+	<!-- insert relationsip -->
+	<insert id="follow" parameterType="relationship">
+	
+		insert into relationship (rnum, loginid, followid)
+						values (rel_seq.nextval, #{loginId}, #{followId})
+	
+	</insert>
+</mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.book.sns.dao.UserUpdateMapper">
+	<select id="selectOneUser" parameterType="String" resultType="snsUser">
+	select * from snsuser where userid=#{value}
+	
+	</select>
+	<select id="emailCheck" parameterType="String" resultType="snsUser">
+	select * from snsuser where email=#{value}
+	</select>
+	
+	<update id="updateUser" parameterType="snsUser">
+	update snsuser set userpwd=#{userPwd}, EMAIL=#{email} 
+	 	<if test="originFile != null">
+	,originFile=#{originFile}
+	</if>
+	<if test="saveFile !=null">
+	,saveFile=#{saveFile}
+	</if>
+	,introduce=#{introduce}
+	where userid=#{userId}
+	</update>
+
+	<!-- <update id="updateImg" parameterType="snsUser">
+		update snsuser set originFile=#{originFile},saveFile=#{saveFile} where
+		userid=#{userid}
+	</update> -->
+
+	
+	
+
+	
+	<!-- <select id="idCheck" parameterType="String" resultType="snsUser">
+	select * from SNSUSER where userId=#{value}
+	</select> -->
+	
+</mapper>
